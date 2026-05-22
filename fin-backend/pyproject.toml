@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "finance-backend"
+version = "0.1.0"
+description = "Finance modular monolith API (Python / FastAPI)"
+authors = ["Vinay"]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.115.6"
+uvicorn = { version = "^0.32.1", extras = ["standard"] }
+sqlalchemy = { version = "^2.0.36", extras = ["asyncio"] }
+asyncpg = "^0.30.0"
+pydantic-settings = "^2.6.1"
+bcrypt = "^4.2.0"
+python-multipart = "^0.0.17"
+itsdangerous = "^2.2.0"
+email-validator = "^2.2.0"
+alembic = "^1.14.0"
+psycopg = {version = "^3.2.0", extras = ["binary"]}
+
+[build-system]
+requires = ["poetry-core>=1.8.0"]
+build-backend = "poetry.core.masonry.api"

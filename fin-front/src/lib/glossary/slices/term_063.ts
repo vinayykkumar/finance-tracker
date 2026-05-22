@@ -1,0 +1,9 @@
+/**
+ * Glossary slice (063): modular copy for future i18n / tooltips.
+ * @see README in parent folder.
+ */
+export const termId = "063" as const;
+export const termEn = "purchase APR" as const;
+export function describeTerm(): string {
+  return termEn;
+}
