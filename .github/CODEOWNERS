@@ -1,0 +1,6 @@
+# Add real GitHub usernames or org teams before enabling "Require review from Code Owners"
+# in branch protection. Example:
+#
+# * @your-github-username
+# /fin-backend/ @your-org/backend
+# /fin-front/ @your-org/frontend

@@ -19,6 +19,26 @@ email-validator = "^2.2.0"
 alembic = "^1.14.0"
 psycopg = {version = "^3.2.0", extras = ["binary"]}
 
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+ruff = "^0.8.4"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"
+
+[tool.ruff]
+target-version = "py311"
+src = ["app", "tests"]
+line-length = 100
+extend-exclude = ["app/glossary_slices"]
+
+[tool.ruff.lint]
+# Bugbear (B) includes B008 which flags FastAPI's Depends()/Query() defaults — intentional there.
+select = ["E", "F", "I", "UP"]
+ignore = ["E501"]
+
 [build-system]
 requires = ["poetry-core>=1.8.0"]
 build-backend = "poetry.core.masonry.api"

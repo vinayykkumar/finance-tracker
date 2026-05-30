@@ -1,12 +1,11 @@
-from collections.abc import AsyncGenerator
 import asyncio
+from collections.abc import AsyncGenerator
 from pathlib import Path
 
 from alembic import command
 from alembic.config import Config
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-
 from app.config import get_settings
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 settings = get_settings()
 engine = create_async_engine(

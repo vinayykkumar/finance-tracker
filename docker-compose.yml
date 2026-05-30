@@ -23,6 +23,7 @@ services:
       context: ./fin-backend
       dockerfile: Dockerfile
     environment:
+      ENVIRONMENT: development
       DATABASE_URL: postgresql+asyncpg://finance:finance@postgres:5432/finance
       SECRET_KEY: ${SECRET_KEY:-docker-dev-only-change-for-production-min-32-chars}
       CORS_ORIGINS: http://localhost:8080,http://127.0.0.1:8080

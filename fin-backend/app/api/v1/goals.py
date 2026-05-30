@@ -6,13 +6,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.session_user import require_session_user_id
 from app.db.session import get_db
+from app.modules.goals import calculator
 from app.modules.goals.schemas import (
     FinancialGoalCreate,
     FinancialGoalPlan,
     FinancialGoalRead,
     FinancialGoalUpdate,
 )
-from app.modules.goals import calculator
 from app.modules.goals.service import GoalService
 
 router = APIRouter(prefix="/goals", tags=["goals"])

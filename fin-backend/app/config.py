@@ -1,5 +1,7 @@
 from functools import lru_cache
+from typing import Literal, Self
 
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -11,6 +13,28 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
     host: str = "0.0.0.0"
     port: int = 8000
+    environment: Literal["development", "staging", "production"] = Field(
+        default="development",
+        description=(
+            "In staging/production, SECRET_KEY must be at least 32 characters and cannot be "
+            "the default placeholder 'change-me'."
+        ),
+    )
+
+    @model_validator(mode="after")
+    def validate_secret_key_strength(self) -> Self:
+        if self.environment in ("staging", "production"):
+            key = self.secret_key.strip()
+            if key == "change-me":
+                raise ValueError(
+                    "SECRET_KEY cannot be the default placeholder 'change-me' when ENVIRONMENT is "
+                    "staging or production."
+                )
+            if len(key) < 32:
+                raise ValueError(
+                    "SECRET_KEY must be at least 32 characters when ENVIRONMENT is staging or production."
+                )
+        return self
 
     @property
     def cors_origin_list(self) -> list[str]:

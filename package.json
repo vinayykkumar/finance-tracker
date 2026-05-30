@@ -16,7 +16,8 @@
     "dev:web": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-frontend.ps1",
     "docker:up": "docker compose up --build",
     "docker:down": "docker compose down",
-    "docker:logs": "docker compose logs -f"
+    "docker:logs": "docker compose logs -f",
+    "ci:local": "npm ci && npm run lint -w finance-tracking-app && npm run test -w finance-tracking-app && npm run build -w finance-tracking-app && npm run typecheck -w fin-mobile"
   },
   "engines": {
     "node": ">=18"

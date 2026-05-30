@@ -1,7 +1,6 @@
 """Goal use-cases — orchestrates repository + calculator."""
 
 from datetime import UTC, datetime
-from decimal import Decimal
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
