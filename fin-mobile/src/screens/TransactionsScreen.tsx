@@ -12,6 +12,7 @@ import {
   Alert,
 } from "react-native";
 import { createJsonHttpClient } from "../core/http/jsonHttpClient";
+import { getExtraHeadersForApi } from "../core/http/csrfStore";
 import { getApiBaseUrl, getDefaultTimeoutMs, isApiConfigured } from "../core/config";
 import { createAccountsApi, type AccountRow } from "../api/accountsApi";
 import { createTransactionsApi, type TransactionRow } from "../api/transactionsApi";
@@ -30,6 +31,7 @@ export function TransactionsScreen() {
       createJsonHttpClient({
         getBaseUrl: getApiBaseUrl,
         defaultTimeoutMs: getDefaultTimeoutMs(),
+        getExtraHeaders: getExtraHeadersForApi,
       }),
     []
   );

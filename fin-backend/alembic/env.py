@@ -1,4 +1,4 @@
-"""Alembic environment (sync engine — migrations run via ``asyncio.to_thread`` from app lifespan)."""
+"""Alembic environment (sync engine). Run ``poetry run alembic upgrade head`` before starting the API."""
 
 from logging.config import fileConfig
 
@@ -10,8 +10,10 @@ from app.db.base import Base
 
 # Register all ORM models on Base.metadata
 from app.models import account  # noqa: F401
+from app.models import audit_event  # noqa: F401
 from app.models import budget  # noqa: F401
 from app.models import goal  # noqa: F401
+from app.models import idempotency  # noqa: F401
 from app.models import transaction  # noqa: F401
 from app.models import user  # noqa: F401
 

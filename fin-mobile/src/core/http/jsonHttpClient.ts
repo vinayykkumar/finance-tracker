@@ -15,9 +15,11 @@ export function createJsonHttpClient(options: {
   getBaseUrl: () => string;
   credentials?: RequestCredentials;
   defaultTimeoutMs?: number;
+  getExtraHeaders?: () => Record<string, string>;
 }): JsonHttpClient {
   const credentials = options.credentials ?? "include";
   const defaultTimeoutMs = options.defaultTimeoutMs ?? 25_000;
+  const getExtraHeaders = options.getExtraHeaders;
 
   return {
     async requestJson<T>(req: JsonRequest): Promise<T> {
@@ -27,7 +29,10 @@ export function createJsonHttpClient(options: {
       }
       const path = req.path.startsWith("/") ? req.path : `/${req.path}`;
       const url = `${base}${path}`;
-      const headers: Record<string, string> = { Accept: "application/json" };
+      const headers: Record<string, string> = {
+        Accept: "application/json",
+        ...(getExtraHeaders?.() ?? {}),
+      };
       if (req.body !== undefined) {
         headers["Content-Type"] = "application/json";
       }

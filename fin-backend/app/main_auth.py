@@ -1,5 +1,5 @@
-"""ASGI entry with cookie sessions + `/v1/auth/*` (use while the auth slice is in progress)."""
+"""Compatibility alias — same as ``app.main:app``."""
 
-from app.factory import create_app
+from app.main import app
 
-app = create_app(enable_auth=True)
+__all__ = ["app"]

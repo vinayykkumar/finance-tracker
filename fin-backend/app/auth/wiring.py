@@ -1,33 +1,38 @@
-"""Session cookie + `/v1/auth/*` routes.
+"""Session cookie + CSRF + `/v1/auth/*` routes.
 
-Default dev server (`app.main:app`) does not load this module — keeps `/v1` free of auth
-until you opt in.
+Run the full API:
 
-When building or testing auth, run:
+    uvicorn app.main:app --reload
 
-    uvicorn app.main_auth:app --reload
-
-Middleware order: session is registered before CORS so the browser-facing stack stays
-CORS-on-the-outside (same as a typical FastAPI setup).
+Middleware order (outer → inner): RequestId → CORS → Session → CSRF → routes.
 """
+
+import secrets
 
 from fastapi import APIRouter, FastAPI
 from starlette.middleware.sessions import SessionMiddleware
 
 from app.api.v1 import auth as auth_v1
 from app.config import get_settings
+from app.middleware.csrf import CsrfProtectMiddleware
 
 
-def install_session_middleware(app: FastAPI) -> None:
+def install_auth_stack(app: FastAPI) -> None:
+    """CSRF must be inner to Session so `request.session` is populated before CSRF runs."""
+    app.add_middleware(CsrfProtectMiddleware)
     settings = get_settings()
     app.add_middleware(
         SessionMiddleware,
         secret_key=settings.secret_key,
         session_cookie="session",
         max_age=14 * 24 * 60 * 60,
-        same_site="lax",
-        https_only=False,
+        same_site=settings.session_same_site,
+        https_only=settings.session_cookie_https_only,
     )
+
+
+def new_csrf_token() -> str:
+    return secrets.token_urlsafe(32)
 
 
 def include_auth_routes(v1: APIRouter) -> None:

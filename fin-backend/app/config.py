@@ -41,6 +41,14 @@ class Settings(BaseSettings):
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
 
     @property
+    def session_cookie_https_only(self) -> bool:
+        return self.environment in ("staging", "production")
+
+    @property
+    def session_same_site(self) -> Literal["lax", "strict"]:
+        return "lax"
+
+    @property
     def database_url_sync(self) -> str:
         """Alembic / sync tools: use psycopg3 (installed) instead of default psycopg2."""
         u = self.database_url

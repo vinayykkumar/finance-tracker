@@ -5,6 +5,7 @@ export type SessionUser = { id: string; email?: string };
 export type SessionResponse = {
   authenticated: boolean;
   user: SessionUser | null;
+  csrf_token?: string | null;
 };
 
 export function createAuthApi(http: JsonHttpClient) {

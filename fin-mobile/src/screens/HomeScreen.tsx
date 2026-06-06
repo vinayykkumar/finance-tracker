@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, RefreshControl, ActivityIndicator } from "react-native";
 import { createJsonHttpClient } from "../core/http/jsonHttpClient";
+import { getExtraHeadersForApi } from "../core/http/csrfStore";
 import { getApiBaseUrl, getDefaultTimeoutMs, isApiConfigured } from "../core/config";
 import { createAccountsApi } from "../api/accountsApi";
 import { formatMoney } from "../core/format/currency";
@@ -12,6 +13,7 @@ export function HomeScreen() {
       createJsonHttpClient({
         getBaseUrl: getApiBaseUrl,
         defaultTimeoutMs: getDefaultTimeoutMs(),
+        getExtraHeaders: getExtraHeadersForApi,
       }),
     []
   );

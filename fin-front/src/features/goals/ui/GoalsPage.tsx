@@ -48,7 +48,7 @@ export function GoalsPage() {
       setGoals(rows);
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) {
-        setError("Not signed in. Use Register / Login against the API (run backend with app.main_auth).");
+        setError("Not signed in. Use Register / Login against the API (run backend with app.main:app).");
       } else if (e instanceof ApiError) {
         setError(e.message);
       } else {
@@ -109,7 +109,7 @@ export function GoalsPage() {
           <code className="text-xs">.env</code> for local Vite (e.g.{" "}
           <code className="text-xs">http://127.0.0.1:8000</code>), or run the Docker compose stack so{" "}
           <code className="text-xs">/v1</code> is same-origin. Use{" "}
-          <code className="text-xs bg-muted px-1 py-0.5 rounded">app.main_auth:app</code> for sessions.
+          <code className="text-xs bg-muted px-1 py-0.5 rounded">app.main:app</code> for sessions.
         </p>
       </div>
     );

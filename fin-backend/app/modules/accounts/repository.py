@@ -27,6 +27,19 @@ class AccountRepository:
         )
         return r.scalar_one_or_none()
 
+    async def get_for_user_for_update(
+        self, user_id: UUID, account_id: UUID
+    ) -> FinancialAccount | None:
+        r = await self._session.execute(
+            select(FinancialAccount)
+            .where(
+                FinancialAccount.id == account_id,
+                FinancialAccount.user_id == user_id,
+            )
+            .with_for_update()
+        )
+        return r.scalar_one_or_none()
+
     async def add(self, row: FinancialAccount) -> FinancialAccount:
         self._session.add(row)
         await self._session.flush()

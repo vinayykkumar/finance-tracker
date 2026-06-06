@@ -12,6 +12,7 @@ import {
   Alert,
 } from "react-native";
 import { createJsonHttpClient } from "../core/http/jsonHttpClient";
+import { getExtraHeadersForApi } from "../core/http/csrfStore";
 import { getApiBaseUrl, getDefaultTimeoutMs, isApiConfigured } from "../core/config";
 import { createGoalsApi, type FinancialGoalRead, type GoalKind } from "../api/goalsApi";
 import { formatMoney } from "../core/format/currency";
@@ -25,6 +26,7 @@ export function GoalsScreen() {
       createJsonHttpClient({
         getBaseUrl: getApiBaseUrl,
         defaultTimeoutMs: getDefaultTimeoutMs(),
+        getExtraHeaders: getExtraHeadersForApi,
       }),
     []
   );

@@ -25,3 +25,5 @@ fin-front/dist/
 # Mobile
 fin-mobile/node_modules/
 fin-mobile/.expo/
+
+/mfeat

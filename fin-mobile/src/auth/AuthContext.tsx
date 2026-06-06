@@ -7,8 +7,9 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { createAuthApi, type SessionUser } from "../api/authApi";
+import { createAuthApi, type SessionResponse, type SessionUser } from "../api/authApi";
 import { createJsonHttpClient } from "../core/http/jsonHttpClient";
+import { getExtraHeadersForApi, setCsrfToken } from "../core/http/csrfStore";
 import { getApiBaseUrl, getDefaultTimeoutMs, isApiConfigured } from "../core/config";
 import { ApiError } from "../core/api/ApiError";
 
@@ -24,10 +25,16 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+function applyCsrfFromSession(s: SessionResponse): void {
+  if (s.csrf_token) setCsrfToken(s.csrf_token);
+  else if (!s.authenticated) setCsrfToken(null);
+}
+
 function createHttp() {
   return createJsonHttpClient({
     getBaseUrl: getApiBaseUrl,
     defaultTimeoutMs: getDefaultTimeoutMs(),
+    getExtraHeaders: getExtraHeadersForApi,
   });
 }
 
@@ -41,17 +48,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const applySession = useCallback(async () => {
     if (!isApiConfigured()) {
       setUser(null);
+      setCsrfToken(null);
       return;
     }
     try {
       const s = await authApi.session();
+      applyCsrfFromSession(s);
       setUser(s.authenticated && s.user ? s.user : null);
     } catch (e) {
       if (e instanceof ApiError && (e.status === 401 || e.status === 403)) {
         setUser(null);
+        setCsrfToken(null);
         return;
       }
       setUser(null);
+      setCsrfToken(null);
     }
   }, [authApi]);
 
@@ -68,18 +79,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback(
     async (email: string, password: string) => {
-      await authApi.login(email, password);
-      await applySession();
+      const s = await authApi.login(email, password);
+      applyCsrfFromSession(s);
+      setUser(s.authenticated && s.user ? s.user : null);
     },
-    [authApi, applySession]
+    [authApi]
   );
 
   const register = useCallback(
     async (email: string, password: string) => {
-      await authApi.register(email, password);
-      await applySession();
+      const s = await authApi.register(email, password);
+      applyCsrfFromSession(s);
+      setUser(s.authenticated && s.user ? s.user : null);
     },
-    [authApi, applySession]
+    [authApi]
   );
 
   const signOut = useCallback(async () => {
@@ -88,6 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       /* best-effort */
     }
+    setCsrfToken(null);
     setUser(null);
   }, [authApi]);
 

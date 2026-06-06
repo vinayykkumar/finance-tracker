@@ -37,6 +37,9 @@ class LedgerTransaction(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+    deleted_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True, index=True
+    )
 
     user = relationship("User", back_populates="ledger_transactions")
     account = relationship("FinancialAccount", back_populates="transactions")

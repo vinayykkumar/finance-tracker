@@ -12,11 +12,17 @@ function detailToMessage(detail: unknown): string | null {
   return null;
 }
 
-export function messageFromErrorBody(body: unknown, fallback: string): string {
+function messageFromProblemLike(body: unknown, fallback: string): string {
   if (typeof body !== "object" || body === null) return fallback;
-  const d = (body as { detail?: unknown }).detail;
-  const m = detailToMessage(d);
-  return m ?? fallback;
+  const o = body as { detail?: unknown; title?: unknown };
+  const d = detailToMessage(o.detail);
+  if (d) return d;
+  if (typeof o.title === "string" && o.title) return o.title;
+  return fallback;
+}
+
+export function messageFromErrorBody(body: unknown, fallback: string): string {
+  return messageFromProblemLike(body, fallback);
 }
 
 export class ApiError extends Error {
@@ -30,6 +36,6 @@ export class ApiError extends Error {
   }
 
   static fromResponse(status: number, parsedBody: unknown, fallback: string): ApiError {
-    return new ApiError(status, messageFromErrorBody(parsedBody, fallback), parsedBody);
+    return new ApiError(status, messageFromProblemLike(parsedBody, fallback), parsedBody);
   }
 }

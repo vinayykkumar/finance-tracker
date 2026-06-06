@@ -1,6 +1,9 @@
 # Full stack: Postgres + FastAPI + static web (nginx proxies /v1 → API).
 # Open http://localhost:8080 after `docker compose up --build`.
 #
+# Before first run (or after pulling new migrations), apply DB schema from the host:
+#   docker compose run --rm api poetry run alembic upgrade head
+#
 # Optional: SECRET_KEY=... docker compose up --build
 
 services:

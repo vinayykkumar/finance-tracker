@@ -13,7 +13,14 @@ export type ApiProblem = z.infer<typeof ApiProblemSchema>;
 
 export function parseApiProblem(body: unknown): ApiProblem | undefined {
   const r = ApiProblemSchema.safeParse(body);
-  return r.success ? r.data : undefined;
+  if (r.success) return r.data;
+  if (typeof body === "object" && body !== null && "detail" in body) {
+    const d = (body as { detail?: unknown }).detail;
+    if (typeof d === "string") {
+      return { detail: d, title: "Error", status: undefined };
+    }
+  }
+  return undefined;
 }
 
 export function messageFromProblem(problem: ApiProblem | undefined, fallback: string): string {

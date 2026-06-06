@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.session_user import require_session_user_id
@@ -30,12 +30,16 @@ async def create_transaction(
     request: Request,
     body: TransactionCreate,
     svc: TransactionService = Depends(get_transaction_service),
+    idempotency_key: str | None = Header(default=None, alias="Idempotency-Key"),
 ) -> TransactionRead:
     uid = require_session_user_id(request)
-    try:
-        return await svc.create(uid, body)
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
+    key = (idempotency_key or "").strip()
+    if len(key) > 255:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Idempotency-Key must be at most 255 characters",
+        )
+    return await svc.create(uid, body, key or None)
 
 
 @router.get("/{tx_id}", response_model=TransactionRead)

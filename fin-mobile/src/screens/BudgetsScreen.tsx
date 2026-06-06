@@ -12,6 +12,7 @@ import {
   Alert,
 } from "react-native";
 import { createJsonHttpClient } from "../core/http/jsonHttpClient";
+import { getExtraHeadersForApi } from "../core/http/csrfStore";
 import { getApiBaseUrl, getDefaultTimeoutMs, isApiConfigured } from "../core/config";
 import { createBudgetsApi, type BudgetRow } from "../api/budgetsApi";
 import { formatMoney } from "../core/format/currency";
@@ -23,6 +24,7 @@ export function BudgetsScreen() {
       createJsonHttpClient({
         getBaseUrl: getApiBaseUrl,
         defaultTimeoutMs: getDefaultTimeoutMs(),
+        getExtraHeaders: getExtraHeadersForApi,
       }),
     []
   );

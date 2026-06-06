@@ -5,6 +5,8 @@ export type FetchHttpClientOptions = {
   getBaseUrl: () => string;
   defaultTimeoutMs: number;
   credentials?: RequestCredentials;
+  /** Merged into outgoing requests (e.g. X-CSRF-Token for mutating calls). */
+  getExtraHeaders?: () => Record<string, string>;
 };
 
 function combineAbortSignals(a: AbortSignal, b?: AbortSignal): AbortSignal {
@@ -35,7 +37,7 @@ function normalizeHeaders(h: Record<string, string> | undefined): Record<string,
  * Production-oriented fetch adapter: timeouts, request IDs, JSON + problem bodies.
  */
 export function createFetchHttpClient(options: FetchHttpClientOptions): HttpClient {
-  const { getBaseUrl, defaultTimeoutMs, credentials = "include" } = options;
+  const { getBaseUrl, defaultTimeoutMs, credentials = "include", getExtraHeaders } = options;
 
   return {
     async requestJson<T>(req: HttpRequest): Promise<T> {
@@ -59,6 +61,7 @@ export function createFetchHttpClient(options: FetchHttpClientOptions): HttpClie
       const headers: Record<string, string> = {
         Accept: "application/json",
         "X-Request-Id": requestId,
+        ...(getExtraHeaders?.() ?? {}),
         ...normalizeHeaders(req.headers),
       };
       if (req.body !== undefined) {

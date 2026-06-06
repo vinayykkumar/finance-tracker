@@ -21,3 +21,4 @@ class UserPublic(BaseModel):
 class SessionResponse(BaseModel):
     authenticated: bool
     user: UserPublic | None = None
+    csrf_token: str | None = None
