@@ -10,7 +10,7 @@ python = "^3.11"
 fastapi = "^0.115.6"
 uvicorn = { version = "^0.32.1", extras = ["standard"] }
 sqlalchemy = { version = "^2.0.36", extras = ["asyncio"] }
-asyncpg = "^0.30.0"
+asyncpg = ">=0.30,<0.32"
 pydantic-settings = "^2.6.1"
 bcrypt = "^4.2.0"
 python-multipart = "^0.0.17"
