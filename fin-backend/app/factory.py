@@ -50,6 +50,7 @@ def create_app(*, enable_auth: bool = True) -> FastAPI:
         from app.api.v1 import accounts as accounts_v1
         from app.api.v1 import budgets as budgets_v1
         from app.api.v1 import goals as goals_v1
+        from app.api.v1 import sms_ingest as sms_ingest_v1
         from app.api.v1 import transactions as transactions_v1
         from app.auth.wiring import include_auth_routes
 
@@ -58,6 +59,7 @@ def create_app(*, enable_auth: bool = True) -> FastAPI:
         v1.include_router(accounts_v1.router)
         v1.include_router(transactions_v1.router)
         v1.include_router(budgets_v1.router)
+        v1.include_router(sms_ingest_v1.router)
     app.include_router(v1)
 
     @app.get("/")

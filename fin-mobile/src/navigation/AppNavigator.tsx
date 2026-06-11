@@ -10,6 +10,7 @@ import { TransactionsScreen } from "../screens/TransactionsScreen";
 import { BudgetsScreen } from "../screens/BudgetsScreen";
 import { GoalsScreen } from "../screens/GoalsScreen";
 import { SettingsScreen } from "../screens/SettingsScreen";
+import { SmsSyncScreen } from "../screens/SmsSyncScreen";
 
 export type RootStackParamList = {
   Login: undefined;
@@ -26,8 +27,33 @@ export type MainTabParamList = {
   Settings: undefined;
 };
 
+// Settings sub-navigator — stack inside the Settings tab so SMS sync has
+// a back button and doesn't displace the tab bar.
+export type SettingsStackParamList = {
+  SettingsHome: undefined;
+  SmsSync: undefined;
+};
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
+const SettingsStack = createNativeStackNavigator<SettingsStackParamList>();
+
+function SettingsNavigator() {
+  return (
+    <SettingsStack.Navigator>
+      <SettingsStack.Screen
+        name="SettingsHome"
+        component={SettingsScreen}
+        options={{ title: "Settings" }}
+      />
+      <SettingsStack.Screen
+        name="SmsSync"
+        component={SmsSyncScreen}
+        options={{ title: "Bank SMS Sync" }}
+      />
+    </SettingsStack.Navigator>
+  );
+}
 
 function MainTabs() {
   return (
@@ -43,7 +69,11 @@ function MainTabs() {
       <Tab.Screen name="Transactions" component={TransactionsScreen} />
       <Tab.Screen name="Budgets" component={BudgetsScreen} />
       <Tab.Screen name="Goals" component={GoalsScreen} options={{ title: "Goals" }} />
-      <Tab.Screen name="Settings" component={SettingsScreen} />
+      <Tab.Screen
+        name="Settings"
+        component={SettingsNavigator}
+        options={{ headerShown: false, title: "Settings" }}
+      />
     </Tab.Navigator>
   );
 }
