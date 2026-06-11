@@ -83,6 +83,12 @@ export type ExplainResponse = {
   year: number;
   month: number;
   current: CategoryPeriodSummary;
+  /** A short, calm narrative of how `current`'s numbers were arrived at
+   * (cap, rollover source, what's available, spent/remaining or
+   * over-budget). Always derived from `current`. */
+  summary_lines: string[];
+  /** Plain-language history of recent transaction/rule changes that bear on
+   * this category and period, newest first. */
   events: ExplainEvent[];
 };
 

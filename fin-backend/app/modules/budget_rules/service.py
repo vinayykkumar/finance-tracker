@@ -6,7 +6,7 @@ a rule doesn't trigger a recalculation step; the next summary/explain call
 simply reflects the new data.
 """
 
-from datetime import UTC, date, datetime
+from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy.exc import IntegrityError
@@ -21,6 +21,7 @@ from app.modules.budget_rules.calculation import (
     month_bounds,
     period_start_date,
 )
+from app.modules.budget_rules.explanations import describe_event, summary_lines
 from app.modules.budget_rules.repository import BudgetRuleRepository
 from app.modules.budget_rules.schemas import (
     BudgetRuleCreate,
@@ -331,12 +332,14 @@ class BudgetRuleService:
             user_id, entity_types=["ledger_transaction", "budget_rule"]
         )
         events: list[ExplainEvent] = []
-        for row in events_rows:
-            description = self._describe_event(
+        currency = current.currency or "INR"
+        for row in reversed(events_rows):  # newest first
+            description = describe_event(
                 action=row.action,
                 entity_type=row.entity_type,
                 payload=row.payload or {},
                 category_slug=normalized,
+                currency=currency,
                 period_start=period_start,
                 period_end=period_end,
             )
@@ -348,122 +351,8 @@ class BudgetRuleService:
             year=year,
             month=month,
             current=current,
+            summary_lines=summary_lines(current, normalized),
             events=events,
         )
         await self._session.commit()
         return response
-
-    def _describe_event(
-        self,
-        *,
-        action: str,
-        entity_type: str,
-        payload: dict,
-        category_slug: str,
-        period_start: datetime,
-        period_end: datetime,
-    ) -> str | None:
-        if entity_type == "ledger_transaction":
-            return self._describe_transaction_event(
-                action, payload, category_slug, period_start, period_end
-            )
-        if entity_type == "budget_rule":
-            return self._describe_budget_rule_event(action, payload, category_slug, period_start)
-        return None
-
-    @staticmethod
-    def _norm_or_none(slug: str | None) -> str | None:
-        if slug is None:
-            return None
-        try:
-            return normalize_category_slug(slug)
-        except ValueError:
-            return None
-
-    @staticmethod
-    def _in_period(iso: str | None, period_start: datetime, period_end: datetime) -> bool:
-        if not iso:
-            return False
-        try:
-            ts = datetime.fromisoformat(iso)
-        except ValueError:
-            return False
-        if ts.tzinfo is None:
-            # SQLite (tests) round-trips DateTime(timezone=True) as naive;
-            # all stored timestamps are UTC instants by convention.
-            ts = ts.replace(tzinfo=UTC)
-        return period_start <= ts < period_end
-
-    def _describe_transaction_event(
-        self,
-        action: str,
-        payload: dict,
-        category_slug: str,
-        period_start: datetime,
-        period_end: datetime,
-    ) -> str | None:
-        cur_cat = self._norm_or_none(payload.get("category_slug"))
-        cur_occ = payload.get("occurred_at")
-        cur_relevant = cur_cat == category_slug and self._in_period(cur_occ, period_start, period_end)
-
-        old_cat_raw = payload.get("category_slug_old")
-        old_occ_raw = payload.get("occurred_at_old")
-        old_cat = self._norm_or_none(old_cat_raw) if old_cat_raw is not None else cur_cat
-        old_occ = old_occ_raw if old_occ_raw is not None else cur_occ
-        old_relevant = old_cat == category_slug and self._in_period(old_occ, period_start, period_end)
-
-        if not (cur_relevant or old_relevant):
-            return None
-
-        if action == "transaction.create":
-            return (
-                f"Transaction created: {payload.get('amount')} in '{payload.get('category_slug')}' "
-                f"(occurred {payload.get('occurred_at')})"
-            )
-        if action == "transaction.delete":
-            return (
-                f"Transaction deleted: {payload.get('amount')} from '{payload.get('category_slug')}' "
-                f"(occurred {payload.get('occurred_at')})"
-            )
-        if action == "transaction.update":
-            changes = []
-            if "amount" in payload:
-                changes.append(f"amount {payload['amount']['old']} -> {payload['amount']['new']}")
-            if old_cat_raw is not None:
-                changes.append(f"category '{old_cat_raw}' -> '{payload.get('category_slug')}'")
-            if old_occ_raw is not None:
-                changes.append(f"date {old_occ_raw} -> {payload.get('occurred_at')}")
-            if not changes:
-                return "Transaction updated"
-            return "Transaction updated: " + ", ".join(changes)
-        return None
-
-    def _describe_budget_rule_event(
-        self, action: str, payload: dict, category_slug: str, period_start: datetime
-    ) -> str | None:
-        if self._norm_or_none(payload.get("category_slug")) != category_slug:
-            return None
-        eff_raw = payload.get("effective_from")
-        try:
-            eff_date = date.fromisoformat(eff_raw) if eff_raw else None
-        except ValueError:
-            eff_date = None
-        if eff_date is None or eff_date > period_start.date():
-            return None
-
-        cap = payload.get("cap_amount")
-        currency = payload.get("currency")
-        rollover_mode = payload.get("rollover_mode")
-        if action == "budget_rule.create":
-            return (
-                f"Rule created for '{category_slug}' effective {eff_raw}: "
-                f"cap {cap} {currency}, rollover {rollover_mode}"
-            )
-        if action == "budget_rule.update":
-            return (
-                f"Rule for '{category_slug}' effective {eff_raw} updated: "
-                f"cap {cap} {currency}, rollover {rollover_mode}"
-            )
-        if action == "budget_rule.delete":
-            return f"Rule for '{category_slug}' effective {eff_raw} deleted (was cap {cap} {currency})"
-        return None

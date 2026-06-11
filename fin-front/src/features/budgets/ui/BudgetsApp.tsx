@@ -475,31 +475,41 @@ export function BudgetsApp() {
                         className="h-auto p-0 text-xs"
                         onClick={() => toggleExplain(cat.category_slug)}
                       >
-                        {expanded === cat.category_slug ? "Hide details" : "Why is this number what it is?"}
+                        {expanded === cat.category_slug ? "Hide explanation" : "Why is this number what it is?"}
                       </Button>
 
                       {expanded === cat.category_slug ? (
-                        <div className="border-t pt-2 text-xs space-y-1">
+                        <div className="border-t pt-2 space-y-2">
                           {!ex || ex.status === "loading" ? (
-                            <p className="text-muted-foreground">Loading…</p>
+                            <p className="text-xs text-muted-foreground">Loading…</p>
                           ) : ex.status === "error" ? (
-                            <p className="text-destructive">{ex.error}</p>
-                          ) : ex.data && ex.data.events.length === 0 ? (
-                            <p className="text-muted-foreground">
-                              No transaction or rule changes recorded for this period.
-                            </p>
-                          ) : (
-                            <ul className="space-y-1">
-                              {ex.data?.events.map((event, i) => (
-                                <li key={i} className="text-muted-foreground">
-                                  <span className="font-medium text-foreground">
-                                    {new Date(event.at).toLocaleString()}:
-                                  </span>{" "}
-                                  {event.description}
-                                </li>
-                              ))}
-                            </ul>
-                          )}
+                            <p className="text-xs text-destructive">{ex.error}</p>
+                          ) : ex.data ? (
+                            <>
+                              <ul className="text-sm space-y-1">
+                                {ex.data.summary_lines.map((line, i) => (
+                                  <li key={i}>{line}</li>
+                                ))}
+                              </ul>
+                              {ex.data.events.length > 0 ? (
+                                <div className="space-y-1 pt-1">
+                                  <p className="text-xs font-medium text-muted-foreground">
+                                    Recent changes
+                                  </p>
+                                  <ul className="text-xs space-y-1">
+                                    {ex.data.events.map((event, i) => (
+                                      <li key={i} className="text-muted-foreground">
+                                        <span className="font-medium text-foreground">
+                                          {new Date(event.at).toLocaleString()}:
+                                        </span>{" "}
+                                        {event.description}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              ) : null}
+                            </>
+                          ) : null}
                         </div>
                       ) : null}
                     </li>

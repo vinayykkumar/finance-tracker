@@ -153,4 +153,10 @@ class ExplainResponse(BaseModel):
     year: int
     month: int
     current: CategoryPeriodSummary
+    #: A short, calm narrative of how `current`'s numbers were arrived at
+    #: (cap, rollover source, what's available, spent/remaining or
+    #: over-budget). Always derived from `current`, so it can't drift from it.
+    summary_lines: list[str]
+    #: Plain-language history of recent transaction/rule changes that bear
+    #: on this category and period, newest first.
     events: list[ExplainEvent]
