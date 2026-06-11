@@ -1,0 +1,6 @@
+{
+  "description": "Looks bank-ish (sender + 'Rs' + 'a/c') but is a promo, not a transaction alert — no template should match. Honest 'unparsed', not a misfire.",
+  "sender": "AX-AXISBK",
+  "body": "Get Rs.2000 cashback on your AXIS a/c when you use UPI Lite this week. T&C apply.",
+  "expected": null
+}

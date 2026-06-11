@@ -1,0 +1,15 @@
+{
+  "description": "Standard debit alert with date, UPI merchant VPA, and available balance.",
+  "sender": "AD-HDFCBK",
+  "body": "Rs.500.00 debited from A/c XX1234 on 12-06-26 to VPA shop@okhdfcbank. Avl Bal Rs.9,500.00",
+  "expected": {
+    "template": "generic_debit_inr_v1",
+    "direction": "debit",
+    "amount": "500.00",
+    "currency": "INR",
+    "account_tail": "1234",
+    "merchant": "VPA shop@okhdfcbank",
+    "balance_after": "9500.00",
+    "txn_date": "12-06-26"
+  }
+}
