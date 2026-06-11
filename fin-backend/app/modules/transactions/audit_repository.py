@@ -1,5 +1,6 @@
 from uuid import UUID
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.audit_event import AuditEvent
@@ -28,3 +29,14 @@ class AuditRepository:
             )
         )
         await self._session.flush()
+
+    async def list_for_user(
+        self, user_id: UUID, *, entity_types: list[str], limit: int = 1000
+    ) -> list[AuditEvent]:
+        r = await self._session.execute(
+            select(AuditEvent)
+            .where(AuditEvent.user_id == user_id, AuditEvent.entity_type.in_(entity_types))
+            .order_by(AuditEvent.created_at.asc())
+            .limit(limit)
+        )
+        return list(r.scalars().all())
