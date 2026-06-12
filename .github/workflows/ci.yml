@@ -23,16 +23,19 @@ jobs:
       - run: npm run build -w finance-tracking-app
 
   mobile:
-    name: Mobile (typecheck)
+    name: Mobile (typecheck, unit tests)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          # node --test src/**/*.test.ts (smsSync prefilter unit tests) needs
+          # --experimental-strip-types, available from Node 22.6.
+          node-version: "22"
           cache: npm
       - run: npm ci
       - run: npm run typecheck -w fin-mobile
+      - run: npm run test -w fin-mobile
 
   backend:
     name: API (ruff, pytest)

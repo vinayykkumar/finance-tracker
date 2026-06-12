@@ -4,6 +4,7 @@ from app.models.budget import BudgetLine
 from app.models.budget_rule import BudgetRule
 from app.models.goal import FinancialGoal
 from app.models.idempotency import IdempotencyKey
+from app.models.sms_message import SmsMessage
 from app.models.transaction import LedgerTransaction
 from app.models.user import User
 
@@ -16,4 +17,5 @@ __all__ = [
     "BudgetRule",
     "IdempotencyKey",
     "AuditEvent",
+    "SmsMessage",
 ]

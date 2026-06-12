@@ -1,0 +1,6 @@
+{
+  "description": "OTP message — must NOT be parsed as a transaction. parse_status should be 'unparsed', not a guess.",
+  "sender": "VK-HDFCBK",
+  "body": "Dear Customer, your OTP for login is 482913. Valid for 10 minutes. Do not share this with anyone.",
+  "expected": null
+}

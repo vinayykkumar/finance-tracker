@@ -1,0 +1,15 @@
+{
+  "description": "Standard credit alert with date, sender name, and available balance.",
+  "sender": "VM-ICICIB",
+  "body": "INR 1,200.00 credited to your A/c XX5678 on 12-Jun-2026 from ABC CORP. Avail Bal: INR 45,000.00",
+  "expected": {
+    "template": "generic_credit_inr_v1",
+    "direction": "credit",
+    "amount": "1200.00",
+    "currency": "INR",
+    "account_tail": "5678",
+    "merchant": "ABC CORP",
+    "balance_after": "45000.00",
+    "txn_date": "12-Jun-2026"
+  }
+}

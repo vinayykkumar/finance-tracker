@@ -1,0 +1,13 @@
+{
+  "description": "Debit alert without an available-balance clause — balance_after must be absent, not guessed.",
+  "sender": "VM-ICICIB",
+  "body": "Rs.250.00 debited from A/c XX4321 on 01-01-26.",
+  "expected": {
+    "template": "generic_debit_inr_v1",
+    "direction": "debit",
+    "amount": "250.00",
+    "currency": "INR",
+    "account_tail": "4321",
+    "txn_date": "01-01-26"
+  }
+}

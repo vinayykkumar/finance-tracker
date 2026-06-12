@@ -1,0 +1,14 @@
+{
+  "description": "UPI spend notification phrased as 'You have spent ... from account ending ...'.",
+  "sender": "JD-SBIUPI",
+  "body": "You have spent Rs 250.00 from account ending 1234 to Big Bazaar on 12-06-2026. UPI Ref No 123456789012",
+  "expected": {
+    "template": "upi_spent_v1",
+    "direction": "debit",
+    "amount": "250.00",
+    "currency": "INR",
+    "account_tail": "1234",
+    "merchant": "Big Bazaar",
+    "txn_date": "12-06-2026"
+  }
+}

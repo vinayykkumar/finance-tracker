@@ -1,9 +1,13 @@
 import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../auth/AuthContext";
 import { getApiBaseUrl, isApiConfigured } from "../core/config";
+import type { SettingsStackParamList } from "../navigation/AppNavigator";
 
 export function SettingsScreen() {
   const { user, signOut, refreshSession } = useAuth();
+  const navigation = useNavigation<NativeStackNavigationProp<SettingsStackParamList, "SettingsHome">>();
 
   return (
     <ScrollView style={styles.scroll} contentContainerStyle={styles.pad}>
@@ -20,6 +24,9 @@ export function SettingsScreen() {
           127.0.0.1) so session cookies work.
         </Text>
       </View>
+      <Pressable style={styles.btnSecondary} onPress={() => navigation.navigate("SmsSync")}>
+        <Text style={styles.btnSecondaryText}>SMS bank alerts (sync &amp; permissions)</Text>
+      </Pressable>
       <Pressable style={styles.btnSecondary} onPress={() => void refreshSession()}>
         <Text style={styles.btnSecondaryText}>Refresh session</Text>
       </Pressable>
