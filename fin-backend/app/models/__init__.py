@@ -1,6 +1,7 @@
 from app.models.account import FinancialAccount
 from app.models.audit_event import AuditEvent
 from app.models.budget import BudgetLine
+from app.models.budget_rule import BudgetRule
 from app.models.goal import FinancialGoal
 from app.models.idempotency import IdempotencyKey
 from app.models.transaction import LedgerTransaction
@@ -12,6 +13,7 @@ __all__ = [
     "FinancialAccount",
     "LedgerTransaction",
     "BudgetLine",
+    "BudgetRule",
     "IdempotencyKey",
     "AuditEvent",
 ]

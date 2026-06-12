@@ -2,7 +2,9 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+from app.modules.categories.normalization import normalize_category_slug
 
 
 class TransactionCreate(BaseModel):
@@ -13,6 +15,11 @@ class TransactionCreate(BaseModel):
     occurred_at: datetime
     notes: str | None = Field(default=None, max_length=4000)
 
+    @field_validator("category_slug")
+    @classmethod
+    def _normalize_category(cls, v: str) -> str:
+        return normalize_category_slug(v)
+
 
 class TransactionUpdate(BaseModel):
     amount: Decimal | None = Field(default=None, decimal_places=4, max_digits=19)
@@ -20,6 +27,11 @@ class TransactionUpdate(BaseModel):
     category_slug: str | None = Field(default=None, max_length=64)
     occurred_at: datetime | None = None
     notes: str | None = Field(default=None, max_length=4000)
+
+    @field_validator("category_slug")
+    @classmethod
+    def _normalize_category(cls, v: str | None) -> str | None:
+        return normalize_category_slug(v) if v is not None else None
 
 
 class TransactionRead(BaseModel):

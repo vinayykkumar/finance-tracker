@@ -12,6 +12,7 @@ from app.db.base import Base
 from app.models import account  # noqa: F401
 from app.models import audit_event  # noqa: F401
 from app.models import budget  # noqa: F401
+from app.models import budget_rule  # noqa: F401
 from app.models import goal  # noqa: F401
 from app.models import idempotency  # noqa: F401
 from app.models import transaction  # noqa: F401

@@ -12,7 +12,6 @@ import secrets
 from fastapi import APIRouter, FastAPI
 from starlette.middleware.sessions import SessionMiddleware
 
-from app.api.v1 import auth as auth_v1
 from app.config import get_settings
 from app.middleware.csrf import CsrfProtectMiddleware
 
@@ -36,4 +35,8 @@ def new_csrf_token() -> str:
 
 
 def include_auth_routes(v1: APIRouter) -> None:
+    # Imported lazily: app.api.v1.auth imports new_csrf_token from this module,
+    # so a module-level import here would be circular.
+    from app.api.v1 import auth as auth_v1
+
     v1.include_router(auth_v1.router)

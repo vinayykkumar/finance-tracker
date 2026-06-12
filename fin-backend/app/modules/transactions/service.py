@@ -75,6 +75,8 @@ class TransactionService:
                     "account_id": str(body.account_id),
                     "amount": str(body.amount),
                     "description": body.description,
+                    "category_slug": row.category_slug,
+                    "occurred_at": row.occurred_at.isoformat(),
                 },
             )
             if idempotency_key and idem_row is not None:
@@ -91,6 +93,8 @@ class TransactionService:
                 return None
             data = body.model_dump(exclude_unset=True)
             old_amount = row.amount
+            old_category_slug = row.category_slug
+            old_occurred_at = row.occurred_at
             for k, v in data.items():
                 setattr(row, k, v)
             if "amount" in data:
@@ -100,12 +104,30 @@ class TransactionService:
             await self._session.flush()
             await self._session.refresh(row)
             read = self._to_read(row)
+
+            # Budget totals are computed from category_slug + occurred_at, so
+            # the resulting (current) values are always recorded, plus the old
+            # value for whichever of those fields changed — this is what the
+            # budget "explain" view uses to show why a category's total
+            # changed (see app.modules.budget_rules).
+            payload: dict = {
+                "fields": list(data.keys()),
+                "category_slug": row.category_slug,
+                "occurred_at": row.occurred_at.isoformat(),
+            }
+            if "amount" in data:
+                payload["amount"] = {"old": str(old_amount), "new": str(row.amount)}
+            if "category_slug" in data:
+                payload["category_slug_old"] = old_category_slug
+            if "occurred_at" in data:
+                payload["occurred_at_old"] = old_occurred_at.isoformat()
+
             await self._audit.append(
                 user_id=user_id,
                 action="transaction.update",
                 entity_type="ledger_transaction",
                 entity_id=row.id,
-                payload={"fields": list(data.keys())},
+                payload=payload,
             )
             return read
 
@@ -125,6 +147,10 @@ class TransactionService:
                 action="transaction.delete",
                 entity_type="ledger_transaction",
                 entity_id=row.id,
-                payload={"amount": str(row.amount)},
+                payload={
+                    "amount": str(row.amount),
+                    "category_slug": row.category_slug,
+                    "occurred_at": row.occurred_at.isoformat(),
+                },
             )
             return True

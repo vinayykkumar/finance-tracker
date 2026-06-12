@@ -4,6 +4,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
 
+from app.modules.categories.normalization import normalize_category_slug
+
 
 class BudgetCreate(BaseModel):
     category_slug: str = Field(min_length=1, max_length=64)
@@ -11,6 +13,11 @@ class BudgetCreate(BaseModel):
     month: int = Field(ge=1, le=12)
     limit_amount: Decimal = Field(gt=0, decimal_places=4, max_digits=19)
     currency: str = Field(default="INR", min_length=3, max_length=3)
+
+    @field_validator("category_slug")
+    @classmethod
+    def _normalize_category(cls, v: str) -> str:
+        return normalize_category_slug(v)
 
     @field_validator("currency")
     @classmethod

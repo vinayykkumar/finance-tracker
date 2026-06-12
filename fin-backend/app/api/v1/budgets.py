@@ -6,6 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.session_user import require_session_user_id
 from app.db.session import get_db
+from app.modules.budget_rules.schemas import BudgetSummaryResponse, ExplainResponse
+from app.modules.budget_rules.service import BudgetRuleService
 from app.modules.budgets.schemas import BudgetCreate, BudgetRead, BudgetUpdate
 from app.modules.budgets.service import BudgetService
 
@@ -14,6 +16,42 @@ router = APIRouter(prefix="/budgets", tags=["budgets"])
 
 def get_budget_service(db: AsyncSession = Depends(get_db)) -> BudgetService:
     return BudgetService(db)
+
+
+def get_budget_rule_service(db: AsyncSession = Depends(get_db)) -> BudgetRuleService:
+    return BudgetRuleService(db)
+
+
+# NOTE: these two routes must stay registered before GET /{budget_id} — otherwise
+# "summary" would be matched as a budget_id path parameter and fail UUID parsing.
+@router.get("/summary", response_model=BudgetSummaryResponse)
+async def get_budget_summary(
+    request: Request,
+    year: int = Query(..., ge=2000, le=2100),
+    month: int = Query(..., ge=1, le=12),
+    svc: BudgetRuleService = Depends(get_budget_rule_service),
+) -> BudgetSummaryResponse:
+    """Computed cap/rollover/spend totals for the period, per category, plus
+    an "unbudgeted" bucket for spend in categories with no active rule."""
+    uid = require_session_user_id(request)
+    return await svc.summary(uid, year, month)
+
+
+@router.get("/summary/explain", response_model=ExplainResponse)
+async def explain_budget_summary(
+    request: Request,
+    year: int = Query(..., ge=2000, le=2100),
+    month: int = Query(..., ge=1, le=12),
+    category_slug: str = Query(..., min_length=1, max_length=64),
+    svc: BudgetRuleService = Depends(get_budget_rule_service),
+) -> ExplainResponse:
+    """The current computed total for one category/period, plus the audit
+    events (transaction edits, rule changes) that bear on it."""
+    uid = require_session_user_id(request)
+    try:
+        return await svc.explain(uid, year, month, category_slug)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(e)) from None
 
 
 @router.get("", response_model=list[BudgetRead])

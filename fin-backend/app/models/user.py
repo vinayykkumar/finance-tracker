@@ -32,3 +32,6 @@ class User(Base):
     budget_lines = relationship(
         "BudgetLine", back_populates="user", cascade="all, delete-orphan"
     )
+    budget_rules = relationship(
+        "BudgetRule", back_populates="user", cascade="all, delete-orphan"
+    )
