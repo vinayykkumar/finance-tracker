@@ -7,24 +7,24 @@ package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
-fastapi = "^0.115.6"
-uvicorn = { version = "^0.32.1", extras = ["standard"] }
+fastapi = ">=0.115.6,<0.137.0"
+uvicorn = { version = ">=0.32.1,<0.50.0", extras = ["standard"] }
 sqlalchemy = { version = "^2.0.36", extras = ["asyncio"] }
-asyncpg = "^0.30.0"
+asyncpg = ">=0.30,<0.32"
 pydantic-settings = "^2.6.1"
-bcrypt = "^4.2.0"
-python-multipart = "^0.0.17"
+bcrypt = ">=4.2,<6.0"
+python-multipart = ">=0.0.17,<0.0.33"
 itsdangerous = "^2.2.0"
 email-validator = "^2.2.0"
 alembic = "^1.14.0"
 psycopg = {version = "^3.2.0", extras = ["binary"]}
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.3.4"
+pytest = ">=8.3.4,<10.0.0"
 pytest-asyncio = "^1.4.0"
 aiosqlite = "^0.22.1"
 httpx = "^0.28.1"
-ruff = "^0.8.4"
+ruff = ">=0.8.4,<0.16.0"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
