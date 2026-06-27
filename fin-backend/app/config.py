@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     port: int = 8000
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
+    service_name: str = "finance-api"
+    metrics_enabled: bool = True
+    otel_exporter_otlp_endpoint: str | None = None
     environment: Literal["development", "staging", "production"] = Field(
         default="development",
         description=(

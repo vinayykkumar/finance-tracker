@@ -10,6 +10,8 @@ from app.db.session import close_engine, init_db
 from app.middleware.access_log import AccessLogMiddleware
 from app.middleware.request_id import RequestIdMiddleware
 from app.observability.logging import configure_logging
+from app.observability.metrics import MetricsMiddleware, metrics_endpoint
+from app.observability.tracing import configure_tracing
 
 
 def create_app(*, enable_auth: bool = True) -> FastAPI:
@@ -46,7 +48,18 @@ def create_app(*, enable_auth: bool = True) -> FastAPI:
         expose_headers=["X-Request-Id"],
     )
     app.add_middleware(AccessLogMiddleware)
+    if settings.metrics_enabled:
+        app.add_middleware(MetricsMiddleware)
     app.add_middleware(RequestIdMiddleware)
+
+    configure_tracing(
+        app,
+        endpoint=settings.otel_exporter_otlp_endpoint,
+        service_name=settings.service_name,
+    )
+
+    if settings.metrics_enabled:
+        app.add_route("/metrics", metrics_endpoint, include_in_schema=False)
 
     v1 = APIRouter(prefix="/v1")
     v1.include_router(health_v1.router)
