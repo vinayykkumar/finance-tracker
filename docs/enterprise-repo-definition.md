@@ -29,7 +29,7 @@ Grades: **A** (enterprise-grade) → **F** (absent). Last reviewed against the
 | Dimension | Grade | Evidence |
 |---|:---:|---|
 | Structure & ownership | A- | Modular monolith (`app/modules/*`), real `CODEOWNERS`, architecture review + ADRs |
-| Automated quality gates | B+ | CI runs web/mobile/api + Docker build on push/PR; coverage floor enforced. **Branch protection must be enabled in repo settings.** |
+| Automated quality gates | A- | CI runs web/mobile/api (against a Postgres service) + Docker build on push/PR; coverage floor enforced; DB-backed integration + concurrency tests. **Branch protection must be enabled in repo settings.** |
 | Security & compliance | B | CodeQL (weekly + PR), Dependabot, `SECURITY.md`, secret-strength enforcement, CSRF + login throttling |
 | Documentation & onboarding | A- | Root `README`, `CONTRIBUTING`, per-app docs, ADRs, phased roadmap |
 | Reproducible builds | A- | Dockerfiles + Compose, `poetry.lock`/`package-lock.json`, Alembic migrations |
@@ -42,12 +42,20 @@ These require repository **settings** or longer-horizon work:
 
 1. **Branch protection** — require passing CI + ≥1 Code Owner review on `main`,
    disallow direct pushes. (GitHub repo settings.)
-2. **DB-backed integration tests** — services/repositories are exercised only
-   indirectly today; add a Postgres service to CI and raise the coverage floor.
-3. **Metrics & tracing** — structured logs are in place; Prometheus metrics and
+2. **Metrics & tracing** — structured logs are in place; Prometheus metrics and
    distributed tracing remain on the roadmap (`docs/phases/phase-3-*`).
-4. **Concurrency hardening** — see the balance-race item in the architecture
-   review; row-level locking / optimistic concurrency for account balances.
+3. **Broader integration coverage** — the transaction/balance flow now has
+   DB-backed tests; extend the same approach to budgets, goals, and auth, then
+   ratchet the coverage floor up.
+
+## Resolved
+
+- **Concurrency hardening** — account-balance updates use `SELECT ... FOR UPDATE`
+  row locks inside a transaction across create/update/delete; an integration
+  test fans out concurrent writers and asserts no lost updates (it fails if the
+  lock is removed).
+- **DB-backed integration tests** — `tests/integration` runs the real service
+  against Postgres; CI provisions a Postgres service and applies migrations.
 
 ## How to raise a grade
 

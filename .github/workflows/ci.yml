@@ -44,6 +44,23 @@ jobs:
     defaults:
       run:
         working-directory: fin-backend
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: finance
+          POSTGRES_PASSWORD: finance
+          POSTGRES_DB: finance
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U finance -d finance"
+          --health-interval 3s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgresql+asyncpg://finance:finance@localhost:5432/finance
+      ENVIRONMENT: development
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -58,6 +75,8 @@ jobs:
       - run: poetry config virtualenvs.in-project true
       - run: poetry install --with dev --no-interaction
       - run: poetry run ruff check app tests
+      - name: Apply database migrations
+        run: poetry run alembic upgrade head
       - run: poetry run pytest --cov-report=xml
       - name: Upload coverage report
         if: always()

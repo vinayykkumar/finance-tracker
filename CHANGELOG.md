@@ -11,6 +11,11 @@ to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   (method, path, status, latency, request id) and a configurable `LOG_LEVEL`.
 - Backend test suite covering goal-planning math, login throttling, request-id
   and CSRF middleware, structured logging, app wiring, and schema validation.
+- DB-backed integration tests (`tests/integration`) that verify account-balance
+  consistency across create/update/delete, idempotent replays, soft-delete
+  reversal, and concurrent writes to the same account (proving the
+  `SELECT ... FOR UPDATE` row lock prevents lost updates). The CI backend job
+  now runs against a Postgres service with migrations applied.
 - Coverage reporting via `pytest-cov` with a CI coverage floor and an uploaded
   coverage artifact.
 - Repository governance: root `README`, `CONTRIBUTING`, `SECURITY` policy,

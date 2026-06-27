@@ -66,6 +66,15 @@ poetry run ruff check app tests        # lint
 poetry run pytest                      # tests + coverage gate
 ```
 
+DB-backed integration tests under `tests/integration` (account-balance
+consistency, idempotency, and concurrency) are skipped automatically when no
+database is reachable. To run them, point `DATABASE_URL` at a migrated database:
+
+```bash
+DATABASE_URL=postgresql+asyncpg://finance:finance@localhost:5432/finance \
+  poetry run pytest tests/integration
+```
+
 ### Web (`fin-front`)
 
 ```bash
