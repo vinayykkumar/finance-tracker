@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.auth.csrf_token import new_csrf_token
 from app.auth.login_throttle import clear_login_failures, is_login_throttled, record_login_failure
 from app.auth.session_user import session_user_id_optional
-from app.auth.wiring import new_csrf_token
 from app.db.session import get_db
 from app.schemas.auth import LoginBody, RegisterBody, SessionResponse
 from app.services.auth_service import (
