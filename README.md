@@ -27,10 +27,26 @@ Cross-cutting concerns:
 
 - **Request IDs** — every request carries an `X-Request-Id` (generated or echoed).
 - **Structured logging** — JSON logs with per-request context and latency (`app/observability`).
+- **Metrics & tracing** — Prometheus `/metrics`; opt-in OpenTelemetry tracing via `OTEL_EXPORTER_OTLP_ENDPOINT`.
+- **Security headers** — CSP, HSTS, X-Frame-Options, and more, on the API and nginx.
 - **Problem+JSON** — errors follow [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807).
 - **CSRF protection** — token required on authenticated mutating requests.
-- **Login throttling** — per-email failure rate limiting.
+- **Login throttling** — per-email failure rate limiting (in-memory or Redis).
 - **Idempotency** — `Idempotency-Key` support for transaction creation.
+
+### Typed API contract
+
+The web/mobile clients generate their types from the server's OpenAPI schema, so
+they never drift from the API:
+
+```bash
+# Re-export the schema after changing the API, then regenerate client types
+cd fin-backend && poetry run python scripts/export_openapi.py
+cd ../fin-front && npm run gen:api-types
+```
+
+`fin-front/src/lib/api/openapi.json` is the source of truth; CI fails if it is
+stale. Import domain types from `fin-front/src/lib/api/types.ts`.
 
 See [`docs/architecture-review.md`](./docs/architecture-review.md) and the
 [ADRs](./docs/adr/) for deeper context, and [`docs/phases/`](./docs/phases) for
@@ -110,10 +126,17 @@ GitHub Actions run on every push and pull request to `main`:
   typecheck, API ruff + pytest (with a coverage floor), and a Docker Compose build.
 - **CodeQL** ([`codeql.yml`](./.github/workflows/codeql.yml)) — static security
   analysis for Python and JavaScript/TypeScript, plus a weekly scheduled scan.
+- **Security** ([`security.yml`](./.github/workflows/security.yml)) — gitleaks
+  secret scanning, Trivy vulnerability scanning, and SBOM generation.
+- **Release** ([`release.yml`](./.github/workflows/release.yml)) — on `v*.*.*`
+  tags, publishes API and web images to GHCR with provenance + SBOM.
 - **Dependabot** keeps dependencies patched.
 
-## Contributing & security
+## Operations & governance
 
+- Operations runbooks: [`docs/runbooks.md`](./docs/runbooks.md)
+- Branch-protection setup: [`docs/branch-protection.md`](./docs/branch-protection.md)
+- Enterprise-grade rubric & scorecard: [`docs/enterprise-repo-definition.md`](./docs/enterprise-repo-definition.md)
 - Contribution workflow: [`CONTRIBUTING.md`](./CONTRIBUTING.md)
 - Vulnerability disclosure: [`SECURITY.md`](./SECURITY.md)
 - Change history: [`CHANGELOG.md`](./CHANGELOG.md)
