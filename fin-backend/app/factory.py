@@ -9,6 +9,7 @@ from app.config import get_settings
 from app.db.session import close_engine, init_db
 from app.middleware.access_log import AccessLogMiddleware
 from app.middleware.request_id import RequestIdMiddleware
+from app.middleware.security_headers import SecurityHeadersMiddleware
 from app.observability.logging import configure_logging
 from app.observability.metrics import MetricsMiddleware, metrics_endpoint
 from app.observability.tracing import configure_tracing
@@ -51,6 +52,7 @@ def create_app(*, enable_auth: bool = True) -> FastAPI:
     if settings.metrics_enabled:
         app.add_middleware(MetricsMiddleware)
     app.add_middleware(RequestIdMiddleware)
+    app.add_middleware(SecurityHeadersMiddleware)
 
     configure_tracing(
         app,
