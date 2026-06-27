@@ -39,7 +39,7 @@ async def authenticate(db: AsyncSession, email: str, password: str) -> User | No
 
 
 def user_public(user: User) -> UserPublic:
-    return UserPublic(id=str(user.id), email=user.email)
+    return UserPublic(id=str(user.id), email=user.email, role=user.role)
 
 
 async def get_user_by_id(db: AsyncSession, user_id: UUID) -> User | None:

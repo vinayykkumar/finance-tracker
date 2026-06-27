@@ -52,5 +52,5 @@ class AccountRepository:
             q = q.where(FinancialAccount.id != except_id)
         await self._session.execute(q)
 
-    def delete(self, row: FinancialAccount) -> None:
-        self._session.delete(row)
+    async def delete(self, row: FinancialAccount) -> None:
+        await self._session.delete(row)

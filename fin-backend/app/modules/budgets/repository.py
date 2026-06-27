@@ -50,5 +50,5 @@ class BudgetRepository:
         await self._session.refresh(row)
         return row
 
-    def delete(self, row: BudgetLine) -> None:
-        self._session.delete(row)
+    async def delete(self, row: BudgetLine) -> None:
+        await self._session.delete(row)

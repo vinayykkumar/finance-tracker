@@ -63,6 +63,6 @@ class AccountService:
         row = await self._repo.get_for_user(user_id, account_id)
         if row is None:
             return False
-        self._repo.delete(row)
+        await self._repo.delete(row)
         await self._session.commit()
         return True

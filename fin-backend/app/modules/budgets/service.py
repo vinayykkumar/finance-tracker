@@ -72,6 +72,6 @@ class BudgetService:
         row = await self._repo.get_for_user(user_id, budget_id)
         if row is None:
             return False
-        self._repo.delete(row)
+        await self._repo.delete(row)
         await self._session.commit()
         return True

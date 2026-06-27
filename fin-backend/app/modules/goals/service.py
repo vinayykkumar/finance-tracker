@@ -86,6 +86,6 @@ class GoalService:
         g = await self._repo.get_for_user(user_id, goal_id)
         if g is None:
             return False
-        self._repo.delete(g)
+        await self._repo.delete(g)
         await self._session.commit()
         return True

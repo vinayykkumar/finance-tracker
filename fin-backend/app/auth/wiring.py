@@ -7,14 +7,15 @@ Run the full API:
 Middleware order (outer → inner): RequestId → CORS → Session → CSRF → routes.
 """
 
-import secrets
-
 from fastapi import APIRouter, FastAPI
 from starlette.middleware.sessions import SessionMiddleware
 
 from app.api.v1 import auth as auth_v1
+from app.auth.csrf_token import new_csrf_token  # re-exported for backwards compatibility
 from app.config import get_settings
 from app.middleware.csrf import CsrfProtectMiddleware
+
+__all__ = ["install_auth_stack", "include_auth_routes", "new_csrf_token"]
 
 
 def install_auth_stack(app: FastAPI) -> None:
@@ -29,10 +30,6 @@ def install_auth_stack(app: FastAPI) -> None:
         same_site=settings.session_same_site,
         https_only=settings.session_cookie_https_only,
     )
-
-
-def new_csrf_token() -> str:
-    return secrets.token_urlsafe(32)
 
 
 def include_auth_routes(v1: APIRouter) -> None:

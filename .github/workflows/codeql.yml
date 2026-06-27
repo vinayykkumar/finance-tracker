@@ -1,7 +1,10 @@
 name: CodeQL
 
+# Manual-only, plus a weekly scheduled scan. Not triggered on push/PR.
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "27 3 * * 1"
 
 permissions:
   actions: read

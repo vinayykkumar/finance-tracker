@@ -7,11 +7,17 @@ from app.api.exception_handlers import register_exception_handlers
 from app.api.v1 import health as health_v1
 from app.config import get_settings
 from app.db.session import close_engine, init_db
+from app.middleware.access_log import AccessLogMiddleware
 from app.middleware.request_id import RequestIdMiddleware
+from app.middleware.security_headers import SecurityHeadersMiddleware
+from app.observability.logging import configure_logging
+from app.observability.metrics import MetricsMiddleware, metrics_endpoint
+from app.observability.tracing import configure_tracing
 
 
 def create_app(*, enable_auth: bool = True) -> FastAPI:
     settings = get_settings()
+    configure_logging(settings.log_level)
 
     @asynccontextmanager
     async def lifespan(_app: FastAPI):
@@ -42,12 +48,26 @@ def create_app(*, enable_auth: bool = True) -> FastAPI:
         ],
         expose_headers=["X-Request-Id"],
     )
+    app.add_middleware(AccessLogMiddleware)
+    if settings.metrics_enabled:
+        app.add_middleware(MetricsMiddleware)
     app.add_middleware(RequestIdMiddleware)
+    app.add_middleware(SecurityHeadersMiddleware)
+
+    configure_tracing(
+        app,
+        endpoint=settings.otel_exporter_otlp_endpoint,
+        service_name=settings.service_name,
+    )
+
+    if settings.metrics_enabled:
+        app.add_route("/metrics", metrics_endpoint, include_in_schema=False)
 
     v1 = APIRouter(prefix="/v1")
     v1.include_router(health_v1.router)
     if enable_auth:
         from app.api.v1 import accounts as accounts_v1
+        from app.api.v1 import admin as admin_v1
         from app.api.v1 import budgets as budgets_v1
         from app.api.v1 import goals as goals_v1
         from app.api.v1 import transactions as transactions_v1
@@ -58,6 +78,7 @@ def create_app(*, enable_auth: bool = True) -> FastAPI:
         v1.include_router(accounts_v1.router)
         v1.include_router(transactions_v1.router)
         v1.include_router(budgets_v1.router)
+        v1.include_router(admin_v1.router)
     app.include_router(v1)
 
     @app.get("/")
