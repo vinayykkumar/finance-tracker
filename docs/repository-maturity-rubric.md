@@ -1,15 +1,15 @@
-# Enterprise-Grade Repository: Definition & Scorecard
+# Repository Maturity Rubric & Scorecard
 
-This document defines what "enterprise-grade" means for this repository and
+This document defines what "production-grade" means for this repository and
 tracks where `finance-tracker` stands against that bar. It is a living rubric —
 update the scorecard as the project matures.
 
-## What "enterprise-grade" means
+## What "production-grade" means
 
-An enterprise-grade repository is one a large organization can run reliably in
-production, with many contributors and a low tolerance for outages. It is judged
-less by *what the app does* and more by the engineering discipline *around* the
-code. The dimensions:
+A production-grade repository is one a team can run reliably in production, with
+many contributors and a low tolerance for outages. It is judged less by *what
+the app does* and more by the engineering discipline *around* the code. The
+dimensions:
 
 | # | Dimension | What it requires |
 |---|---|---|
@@ -23,8 +23,8 @@ code. The dimensions:
 
 ## Scorecard
 
-Grades: **A** (enterprise-grade) → **F** (absent). Last reviewed against the
-`enterprise-repo-definition` work.
+Grades: **A** (production-grade) → **F** (absent). Last reviewed against the
+repository-hardening work.
 
 | Dimension | Grade | Evidence |
 |---|:---:|---|
@@ -43,7 +43,7 @@ repository — it is a GitHub **repo setting**. Every gate above is built and
 green, but until protection is enabled they are advisory. Turn it on (require
 CI + CodeQL to pass, require ≥1 Code Owner review, block direct pushes) using
 the click-path or `gh` script in [branch-protection.md](./branch-protection.md).
-Once enabled, this repository meets the enterprise-grade bar across every
+Once enabled, this repository meets the production-grade bar across every
 dimension.
 
 ## Resolved

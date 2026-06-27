@@ -136,7 +136,7 @@ GitHub Actions run on every push and pull request to `main`:
 
 - Operations runbooks: [`docs/runbooks.md`](./docs/runbooks.md)
 - Branch-protection setup: [`docs/branch-protection.md`](./docs/branch-protection.md)
-- Enterprise-grade rubric & scorecard: [`docs/enterprise-repo-definition.md`](./docs/enterprise-repo-definition.md)
+- Repository maturity rubric & scorecard: [`docs/repository-maturity-rubric.md`](./docs/repository-maturity-rubric.md)
 - Contribution workflow: [`CONTRIBUTING.md`](./CONTRIBUTING.md)
 - Vulnerability disclosure: [`SECURITY.md`](./SECURITY.md)
 - Change history: [`CHANGELOG.md`](./CHANGELOG.md)

@@ -1,6 +1,6 @@
 # Enabling branch protection on `main`
 
-This is the **only** enterprise-grade requirement that cannot be configured from
+This is the **only** production-grade requirement that cannot be configured from
 inside the repository — it lives in GitHub repository settings. The CI, CodeQL,
 and security workflows are already built and run on every pull request; branch
 protection is what makes them *enforced* (blocking) rather than advisory.
