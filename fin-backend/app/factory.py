@@ -7,11 +7,14 @@ from app.api.exception_handlers import register_exception_handlers
 from app.api.v1 import health as health_v1
 from app.config import get_settings
 from app.db.session import close_engine, init_db
+from app.middleware.access_log import AccessLogMiddleware
 from app.middleware.request_id import RequestIdMiddleware
+from app.observability.logging import configure_logging
 
 
 def create_app(*, enable_auth: bool = True) -> FastAPI:
     settings = get_settings()
+    configure_logging(settings.log_level)
 
     @asynccontextmanager
     async def lifespan(_app: FastAPI):
@@ -42,6 +45,7 @@ def create_app(*, enable_auth: bool = True) -> FastAPI:
         ],
         expose_headers=["X-Request-Id"],
     )
+    app.add_middleware(AccessLogMiddleware)
     app.add_middleware(RequestIdMiddleware)
 
     v1 = APIRouter(prefix="/v1")
