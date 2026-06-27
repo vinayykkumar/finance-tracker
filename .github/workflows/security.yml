@@ -1,11 +1,8 @@
 name: Security
 
+# Manual-only, plus a weekly scheduled scan. Not triggered on push/PR.
 on:
   workflow_dispatch:
-  push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
   schedule:
     - cron: "31 4 * * 1"
 

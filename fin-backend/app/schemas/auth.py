@@ -14,6 +14,7 @@ class LoginBody(BaseModel):
 class UserPublic(BaseModel):
     id: str
     email: str
+    role: str = "user"
 
     model_config = {"from_attributes": True}
 

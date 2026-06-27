@@ -67,6 +67,7 @@ def create_app(*, enable_auth: bool = True) -> FastAPI:
     v1.include_router(health_v1.router)
     if enable_auth:
         from app.api.v1 import accounts as accounts_v1
+        from app.api.v1 import admin as admin_v1
         from app.api.v1 import budgets as budgets_v1
         from app.api.v1 import goals as goals_v1
         from app.api.v1 import transactions as transactions_v1
@@ -77,6 +78,7 @@ def create_app(*, enable_auth: bool = True) -> FastAPI:
         v1.include_router(accounts_v1.router)
         v1.include_router(transactions_v1.router)
         v1.include_router(budgets_v1.router)
+        v1.include_router(admin_v1.router)
     app.include_router(v1)
 
     @app.get("/")

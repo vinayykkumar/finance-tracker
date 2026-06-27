@@ -41,10 +41,7 @@ addopts = "-q --cov=app --cov-report=term-missing --cov-fail-under=65"
 source = ["app"]
 omit = [
     "app/main.py",
-    "app/main_auth.py",
-    "app/main_minimal.py",
     "app/db/*",
-    "app/glossary_slices/*",
 ]
 
 [tool.coverage.report]
@@ -55,7 +52,6 @@ skip_covered = false
 target-version = "py311"
 src = ["app", "tests"]
 line-length = 100
-extend-exclude = ["app/glossary_slices"]
 
 [tool.ruff.lint]
 # Bugbear (B) includes B008 which flags FastAPI's Depends()/Query() defaults — intentional there.

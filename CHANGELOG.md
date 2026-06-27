@@ -7,6 +7,25 @@ to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- Role-based access control: a `role` column on `users` (migration
+  `0003_user_roles`), a `require_role(...)` / `require_admin` dependency layer
+  (`app/auth/rbac.py`), and an admin-only surface (`/v1/admin/users`,
+  `/v1/admin/audit-events`) that exposes the append-only audit trail. RBAC is
+  additive to the existing per-user ownership scoping. Covered by unit and
+  DB-backed integration tests.
+- Frontend test suite: Vitest + Testing Library (jsdom) with component tests
+  (`Button`, `ErrorBoundary`) and unit tests for money formatting, Zod schemas,
+  and the CSRF store; coverage via `@vitest/coverage-v8`.
+- End-to-end tests: Playwright config and specs (public pages, registration →
+  authenticated app, protected-route redirect) plus a CI `e2e` job that boots
+  the Docker Compose stack and runs them.
+- Kubernetes deployment: a Helm chart at `deploy/helm/finance-tracker`
+  (API + web Deployments with liveness/readiness/startup probes, HPA, PDBs,
+  Ingress routing `/v1`→api and `/`→web, ConfigMap/Secret, a pre-upgrade
+  Alembic migration Job, opt-in NetworkPolicy, non-root securityContext) and a
+  `deploy/README.md` runbook.
+- ESLint configuration (`fin-front/.eslintrc.cjs`) so the previously
+  non-functional `npm run lint` gate actually runs (passes clean).
 - Structured JSON logging (`app/observability`) with per-request access logging
   (method, path, status, latency, request id) and a configurable `LOG_LEVEL`.
 - Backend test suite covering goal-planning math, login throttling, request-id
@@ -38,8 +57,15 @@ to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   (`docs/branch-protection.md`).
 
 ### Changed
-- CI and CodeQL workflows now run automatically on push and pull requests to
-  `main` (previously manual `workflow_dispatch` only); CodeQL also runs weekly.
+- CI, CodeQL, and Security workflows are **manual-only** (`workflow_dispatch`);
+  they no longer trigger automatically on push/PR. CodeQL and Security retain
+  their weekly schedule; releases remain tag-driven.
+- Backend image now builds via a multi-stage Dockerfile that runs as a non-root
+  user and ships a container `HEALTHCHECK`.
+- Removed ~170 unused "glossary slice" filler modules
+  (`fin-backend/app/glossary_slices/*`, `fin-front/src/lib/glossary/*`) and the
+  redundant `main_auth.py` / `main_minimal.py` entrypoints; `app.factory`'s
+  `enable_auth` flag already covers the auth-less variant.
 
 ### Fixed
 - Resolved a circular import between `app.auth.wiring` and `app.api.v1.auth`

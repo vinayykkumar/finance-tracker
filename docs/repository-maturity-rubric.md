@@ -29,10 +29,10 @@ repository-hardening work.
 | Dimension | Grade | Evidence |
 |---|:---:|---|
 | Structure & ownership | A | Modular monolith (`app/modules/*`), real `CODEOWNERS`, architecture review + ADRs, typed API contract shared with clients |
-| Automated quality gates | A | CI runs web/mobile/api (against a Postgres service) + Docker build on push/PR; coverage floor (65%); DB-backed integration + concurrency tests; OpenAPI drift check. **Branch protection must still be toggled in repo settings — see [branch-protection.md](./branch-protection.md).** |
-| Security & compliance | A- | CodeQL, Dependabot, gitleaks secret scan, Trivy vuln scan (SARIF), SBOM; secret-strength enforcement; CSRF, login throttling, security headers (CSP/HSTS/etc.) |
-| Documentation & onboarding | A | Root `README`, `CONTRIBUTING`, `SECURITY`, runbooks, per-app docs, ADRs, phased roadmap |
-| Reproducible builds | A | Dockerfiles + Compose, `poetry.lock`/`package-lock.json`, Alembic migrations, tag-driven GHCR releases with provenance + SBOM |
+| Automated quality gates | A | CI runs web/mobile/api (against a Postgres service) + Docker build + Playwright E2E (manual `workflow_dispatch`); backend coverage floor (65%); web unit/component tests + coverage; working ESLint gate; DB-backed integration + concurrency tests; OpenAPI drift check. **Branch protection must still be toggled in repo settings — see [branch-protection.md](./branch-protection.md).** |
+| Security & compliance | A- | CodeQL, Dependabot, gitleaks secret scan, Trivy vuln scan (SARIF), SBOM; secret-strength enforcement; CSRF, login throttling, security headers (CSP/HSTS/etc.); role-based access control (`require_admin`) on the admin/audit surface, additive to per-user ownership scoping |
+| Documentation & onboarding | A | Root `README`, `CONTRIBUTING`, `SECURITY`, runbooks, per-app docs, ADRs, phased roadmap, Kubernetes deploy runbook (`deploy/README.md`) |
+| Reproducible builds | A | Multi-stage non-root Dockerfiles + Compose, Helm chart for Kubernetes (`deploy/helm/finance-tracker`, with a pre-upgrade migration Job), `poetry.lock`/`package-lock.json`, Alembic migrations, tag-driven GHCR releases with provenance + SBOM |
 | Observability & operability | A- | JSON structured logging, access logs (latency + request id), Prometheus `/metrics`, opt-in OpenTelemetry tracing, `/health/live` + `/health/ready`, runbooks |
 | Governance & process | A | Apache-2.0 `LICENSE`, `CHANGELOG`, issue/PR templates, `CODEOWNERS`, release automation |
 
@@ -62,6 +62,18 @@ dimension.
   multi-replica deployments.
 - **Typed API contract** — clients generate types from the server's OpenAPI
   schema; CI fails on drift.
+- **Role-based access control** — `role` column + `require_role`/`require_admin`
+  gate an admin/audit surface, additive to per-user ownership scoping.
+- **Frontend & E2E tests** — Vitest + Testing Library unit/component tests with
+  coverage, and Playwright E2E against the Compose stack in CI.
+- **Working lint gate** — added the missing ESLint config so `npm run lint`
+  actually runs (it previously errored with "no configuration found").
+- **Kubernetes packaging** — a Helm chart (probes, HPA, PDBs, Ingress, migration
+  Job, opt-in NetworkPolicy, non-root) plus a deploy runbook.
+- **Container hardening** — multi-stage backend image running as a non-root user
+  with a `HEALTHCHECK`.
+- **Repo hygiene** — removed ~170 unused glossary-filler modules and the
+  redundant `main_auth.py` / `main_minimal.py` entrypoints.
 
 ## How to raise a grade
 
