@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     service_name: str = "finance-api"
     metrics_enabled: bool = True
     otel_exporter_otlp_endpoint: str | None = None
+    redis_url: str | None = None
     environment: Literal["development", "staging", "production"] = Field(
         default="development",
         description=(

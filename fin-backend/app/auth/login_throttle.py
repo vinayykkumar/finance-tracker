@@ -1,41 +1,38 @@
-"""Simple in-process login rate limiting (per normalized email). Not multi-replica safe — use Redis in production clusters."""
+"""Login rate limiting facade.
+
+Preserves the simple ``record_login_failure`` / ``clear_login_failures`` /
+``is_login_throttled`` API used by the auth routes while delegating to a
+configurable backend (in-process by default, Redis when ``REDIS_URL`` is set so
+the limit holds across replicas). See :mod:`app.auth.throttle`.
+"""
 
 from __future__ import annotations
 
-import time
-from collections import defaultdict, deque
-from threading import Lock
+from functools import lru_cache
 
-_WINDOW_SEC = 15 * 60
-_MAX_ATTEMPTS = 12
-
-_lock = Lock()
-_failures: dict[str, deque[float]] = defaultdict(deque)
+from app.auth.throttle import InMemoryLoginThrottle, LoginThrottle, RedisLoginThrottle
+from app.config import get_settings
 
 
-def _prune(email_key: str, now: float) -> None:
-    q = _failures[email_key]
-    while q and now - q[0] > _WINDOW_SEC:
-        q.popleft()
+@lru_cache
+def _backend() -> LoginThrottle:
+    settings = get_settings()
+    redis_url = getattr(settings, "redis_url", None)
+    if redis_url:
+        import redis
+
+        client = redis.Redis.from_url(redis_url)
+        return RedisLoginThrottle(client)
+    return InMemoryLoginThrottle()
 
 
 def record_login_failure(email: str) -> None:
-    email_key = email.strip().lower()
-    now = time.monotonic()
-    with _lock:
-        _prune(email_key, now)
-        _failures[email_key].append(now)
+    _backend().record_failure(email)
 
 
 def clear_login_failures(email: str) -> None:
-    email_key = email.strip().lower()
-    with _lock:
-        _failures.pop(email_key, None)
+    _backend().clear(email)
 
 
 def is_login_throttled(email: str) -> bool:
-    email_key = email.strip().lower()
-    now = time.monotonic()
-    with _lock:
-        _prune(email_key, now)
-        return len(_failures[email_key]) >= _MAX_ATTEMPTS
+    return _backend().is_throttled(email)
