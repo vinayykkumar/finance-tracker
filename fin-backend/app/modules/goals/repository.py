@@ -35,5 +35,5 @@ class GoalRepository:
         await self._session.refresh(goal)
         return goal
 
-    def delete(self, goal: FinancialGoal) -> None:
-        self._session.delete(goal)
+    async def delete(self, goal: FinancialGoal) -> None:
+        await self._session.delete(goal)

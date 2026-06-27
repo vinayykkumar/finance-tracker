@@ -35,7 +35,7 @@ testpaths = ["tests"]
 pythonpath = ["."]
 # Coverage runs by default; --cov-fail-under is a ratchet floor that prevents
 # regressions. Raise it as DB-backed integration tests are added.
-addopts = "-q --cov=app --cov-report=term-missing --cov-fail-under=55"
+addopts = "-q --cov=app --cov-report=term-missing --cov-fail-under=65"
 
 [tool.coverage.run]
 source = ["app"]

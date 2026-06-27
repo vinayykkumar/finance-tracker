@@ -86,6 +86,17 @@ async def create_user_and_account(
         return user.id, account.id
 
 
+async def create_user(sessionmaker: async_sessionmaker[AsyncSession]) -> uuid.UUID:
+    """Insert a throwaway user, returning its id."""
+    from app.models.user import User
+
+    user = User(email=f"itest-{uuid.uuid4()}@example.com", hashed_password="x")
+    async with sessionmaker() as s:
+        s.add(user)
+        await s.commit()
+        return user.id
+
+
 async def fetch_balance(
     sessionmaker: async_sessionmaker[AsyncSession], account_id: uuid.UUID
 ):
